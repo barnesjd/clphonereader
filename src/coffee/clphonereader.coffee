@@ -7,7 +7,10 @@ window.CLPhoneReader = class CLPhoneReader
       		
     isNum: (text) ->
     	anynum.test text
-    		    	
+    	
+    phone: (ad) ->
+    	(tenDigits.exec ad)[0]
+    	
 lookup = '0' : 0,
 '1' : 1,
 '2' : 2,
@@ -29,7 +32,17 @@ lookup = '0' : 0,
 'eight' : 8,
 'nine' : 9 
 
-anynum = ""
-for text, num of lookup
-    anynum += text + "|" 
-anynum = new RegExp(anynum.substring(0, anynum.length - 1))
+nums = (text for text, num of lookup)
+
+any = ([t, ts...]) ->
+	if ts.length == 0 then return t else return t+"|"+any(ts)
+
+anynum = new RegExp(any nums)
+
+combiner = (delim, [t, ts...]) ->
+	return "" unless t?
+	return t  unless ts.length > 0
+	return t + delim + combiner(delim, ts)
+	
+tenDigits = new RegExp "(?:"+combiner(")(?:",(anynum.source for i in [1..10]))+")"
+    
