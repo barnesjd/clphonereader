@@ -1,16 +1,9 @@
 window.CLPhoneReader = class CLPhoneReader
     replace: (ad) ->
     	for text, num of lookup
-      	    ad = ad.replace new RegExp(text, "g"), num
-      	ad.replace /\d\s+\d/g, (w) ->
-      		w.replace /\s+/g, ""
-      		
-    isNum: (text) ->
-    	anynum.test text
-    	
-    phone: (ad) ->
-    	(tenDigits.exec ad)[0]
-    	
+      	    ad = ad.replace new RegExp(text, "gi"), num
+      	format(cleanup ad)
+
 lookup = '0' : 0,
 '1' : 1,
 '2' : 2,
@@ -21,6 +14,15 @@ lookup = '0' : 0,
 '7' : 7,
 '8' : 8,
 '9' : 9,
+'eleven' : 11,
+'twelve' : 12,
+'thirteen' : 13,
+'fourteen' : 14,
+'fifteen' : 15,
+'sixteen' : 16,
+'seventeen' : 17,
+'eighteen' : 18,
+'nineteen' : 19,
 'zero' : 0,
 'one' : 1,
 'two' : 2,
@@ -30,19 +32,17 @@ lookup = '0' : 0,
 'six' : 6,
 'seven' : 7,
 'eight' : 8,
-'nine' : 9 
+'nine' : 9,
+'oh' : 0
 
-nums = (text for text, num of lookup)
+delims = /\d(?:\s|[-])+\d/g
 
-any = ([t, ts...]) ->
-	if ts.length == 0 then return t else return t+"|"+any(ts)
-
-anynum = new RegExp(any nums)
-
-combiner = (delim, [t, ts...]) ->
-	return "" unless t?
-	return t  unless ts.length > 0
-	return t + delim + combiner(delim, ts)
-	
-tenDigits = new RegExp "(?:"+combiner(")(?:",(anynum.source for i in [1..10]))+")"
+cleanup = (ad) ->
+    clean = ad.replace delims, (m) -> 
+        m.substring(0,1) + m.substring(m.length-1,m.length)
+    return ad unless clean != ad
+    return cleanup(clean)
     
+format = (ad) ->
+	ad.replace /\d{10}/, (n) ->
+		"("+n.substring(0,3)+")"+n.substring(3,6)+"-"+n.substring(6)

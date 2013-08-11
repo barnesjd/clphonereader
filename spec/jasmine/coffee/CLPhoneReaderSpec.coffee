@@ -10,15 +10,28 @@ describe 'CLPhoneReader', ->
     	obj = new CLPhoneReader
     	ad = "This is my number two five six 555-45 six seven"
     	result = obj.replace ad
-    	expect(result).toBe "This is my number 25 6555-456 7"
+    	expect(result).toBe "This is my number (256)555-4567"
     	
-    it 'will find numbers', ->
+    it 'will be case insensitive', ->
     	obj = new CLPhoneReader
-    	expect(obj.isNum "1").toBe true
-    	expect(obj.isNum "one").toBe true
-    	expect(obj.isNum "not").toBe false
-
-    it 'will extract phone numbers', ->
+    	ad = "Call Don Two56-508-SixSix94"
+    	result = obj.replace ad
+    	expect(result).toBe "Call Don (256)508-6694"
+    	
+    it 'will handle multiple delimiters between digits', ->
     	obj = new CLPhoneReader
-    	ad = "This is my number 256fivefivefive12threefour. Call any time"
-    	expect(obj.phone ad).toBe "256fivefivefive12threefour"    	
+    	ad = "Call Don Two56 - 508 - Six Six94"
+    	result = obj.replace ad
+    	expect(result).toBe "Call Don (256)508-6694"
+    	
+    it 'will handle teens', ->
+    	obj = new CLPhoneReader
+    	ad = "Email , Call or Text >>>>>> 256-701-Eighteen 3 Three"
+    	result = obj.replace ad
+    	expect(result).toBe "Email , Call or Text >>>>>> (256)701-1833"
+    	
+    it 'will handle thirty something without a dash', ->
+        obj = new CLPhoneReader
+        ad = "Email , Call or Text >>>>>> 256-701-Eighteen Thirty Three"
+        result = obj.replace ad
+        expect(result).toBe "Email , Call or Text >>>>>> (256)701-1833"
